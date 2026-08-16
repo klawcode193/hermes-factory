@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Install the hermes-factory roster onto an existing Hermes install.
+# Install the hermes-specialists roster onto an existing Hermes install.
 # No secrets. Does not start the gateway.
 # Idempotent: existing profiles are updated in place (config.yaml kept).
 set -euo pipefail
@@ -41,7 +41,7 @@ describe_strategist='Decides what is worth doing and why. Recommendation first. 
 describe_coder='Implements the card. Small verified deliverables, tests, tight diffs. Requests review when the card says so.'
 describe_reviewer='Kills bad code. Reviews diffs and tests. request_changes or approve. Does not rewrite the feature.'
 
-echo "hermes-factory: installing roster into $HERMES_HOME"
+echo "hermes-specialists: installing roster into $HERMES_HOME"
 echo
 
 for name in "${PROFILES[@]}"; do

@@ -1,8 +1,8 @@
-# Hermes Factory setup guide
+# Hermes Specialists setup guide
 
-You already have [Hermes Agent](https://hermes-agent.nousresearch.com/) installed and the default profile can chat. This guide installs the factory on top of that: one Chief of Staff you talk to, plus critic, strategist, coder, and reviewer.
+You already have [Hermes Agent](https://hermes-agent.nousresearch.com/) installed and the default profile can chat. This guide installs the specialists on top of that: one Chief of Staff you talk to, plus critic, strategist, coder, and reviewer.
 
-You talk to **chief**. Chief runs the factory. You do not open the kanban board.
+You talk to **chief**. Chief runs the specialists. You do not open the kanban board.
 
 This pack ships no API keys, tokens, memories, or session history.
 
@@ -40,7 +40,7 @@ Confirm all three. If any fail, fix Hermes first. Do not install this pack yet.
 hermes -p default chat -q "Reply with the word alive."
 ```
 
-You should see the word `alive`. If that command fails, the factory workers will boot on OpenRouter with no key and die.
+You should see the word `alive`. If that command fails, the workers will boot on OpenRouter with no key and die.
 
 On Windows, Hermes home is often `%LOCALAPPDATA%\hermes`, not `~\.hermes`. Clone this repo **outside** that folder.
 
@@ -49,16 +49,16 @@ On Windows, Hermes home is often `%LOCALAPPDATA%\hermes`, not `~\.hermes`. Clone
 **Windows: use PowerShell.** Do not run `./install.sh` in PowerShell (it no-ops). Do not run `./install.sh` in Git Bash on Windows either. That script only looks at `~/.hermes`, so a `%LOCALAPPDATA%\hermes` install will miss the home.
 
 ```powershell
-git clone https://github.com/klawcode193/hermes-factory.git
-cd hermes-factory
+git clone https://github.com/klawcode193/hermes-specialists.git
+cd hermes-specialists
 powershell -ExecutionPolicy Bypass -File .\install.ps1
 ```
 
 **macOS / Linux:**
 
 ```bash
-git clone https://github.com/klawcode193/hermes-factory.git
-cd hermes-factory
+git clone https://github.com/klawcode193/hermes-specialists.git
+cd hermes-specialists
 ./install.sh
 ```
 
@@ -75,7 +75,7 @@ Reruns update existing profiles and keep your `config.yaml` (Telegram chat ids s
 
 ## Step 2. One gateway
 
-Two running gateways means two dispatchers and a dead factory. Stop default, then start chief.
+Two running gateways means two dispatchers and a dead install. Stop default, then start chief.
 
 ```text
 hermes -p default gateway stop
@@ -140,20 +140,20 @@ Pass: chief refuses and offers to assign a specialist. Fail: it opens disk.
 **Test 3. One card.** Create this folder, then paste the line below.
 
 ```powershell
-mkdir $env:USERPROFILE\factory-test
+mkdir $env:USERPROFILE\specialists-test
 ```
 
 ```bash
-mkdir -p "$HOME/factory-test"
+mkdir -p "$HOME/specialists-test"
 ```
 
 Ask chief:
 
-`Kill or keep $HOME/factory-test (or %USERPROFILE%\factory-test). Done when you give one recommendation. Do not touch any other path.`
+`Kill or keep $HOME/specialists-test (or %USERPROFILE%\specialists-test). Done when you give one recommendation. Do not touch any other path.`
 
 Pass: chief creates the work, does not ask you to say "dispatch," and in about a minute a specialist-shaped answer comes back.
 
-If a folder named `factory-test` already exists from an earlier run, delete it first or the card is reviewing leftover files.
+If a folder named `specialists-test` already exists from an earlier run, delete it first or the card is reviewing leftover files.
 
 ## Telegram (optional)
 
@@ -216,7 +216,7 @@ After you edit those files: `/new` in Telegram, or start a new chief chat. Resta
 - Default gateway still running + chief gateway = two dispatchers. Stop default, or leave `dispatch_in_gateway` true on exactly one gateway.
 - Default Telegram + chief Telegram = token lock. One bot. One chief.
 - A session with no terminal cannot move `.env` files. Use the telegram setup script locally.
-- Nested Grok Build or Cursor inside the factory is two chiefs. Pin a model on the coder profile instead.
+- Nested Grok Build or Cursor inside this pack is two chiefs. Pin a model on the coder profile instead.
 - New profiles often default to OpenRouter with no key. Worker dies in about a minute, no kanban log. Run `setup-models.ps1` or `./setup-models.sh`. Do not add a new provider.
 
 ## Security
@@ -225,4 +225,4 @@ Public pack. Never commit `.env`, tokens, memories, chat ids, vault paths, or em
 
 ## License
 
-MIT. Repo: https://github.com/klawcode193/hermes-factory
+MIT. Repo: https://github.com/klawcode193/hermes-specialists

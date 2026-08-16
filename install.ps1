@@ -1,4 +1,4 @@
-# Install the hermes-factory roster onto an existing Hermes install.
+# Install the hermes-specialists roster onto an existing Hermes install.
 # Windows PowerShell. No secrets. Does not start the gateway.
 # Idempotent: existing profiles are updated in place (config.yaml kept).
 param(
@@ -53,7 +53,7 @@ $Describe = @{
     reviewer   = "Kills bad code. Reviews diffs and tests. request_changes or approve. Does not rewrite the feature."
 }
 
-Write-Host "hermes-factory: installing roster into $HermesHome"
+Write-Host "hermes-specialists: installing roster into $HermesHome"
 Write-Host ""
 
 foreach ($name in $Profiles) {

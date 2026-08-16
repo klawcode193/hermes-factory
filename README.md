@@ -1,8 +1,8 @@
-# hermes-factory
+# hermes-specialists
 
 A Chief of Staff plus four specialists for [Hermes Agent](https://hermes-agent.nousresearch.com/).
 
-You talk to **chief**. Chief runs the factory. You do not open the kanban board.
+You talk to **chief**. Chief runs the specialists. You do not open the kanban board.
 
 This repo ships no API keys, tokens, memories, or session history.
 
@@ -18,7 +18,7 @@ Walkthrough: [SETUP.md](SETUP.md) · [SETUP.pdf](SETUP.pdf)
 hermes -p default chat -q "Reply with the word alive."
 ```
 
-The installer copies that working model and provider onto the factory profiles. If default cannot chat, workers boot on OpenRouter with no key and die. Fix Hermes first. Do not install this pack yet.
+The installer copies that working model and provider onto the specialist profiles. If default cannot chat, workers boot on OpenRouter with no key and die. Fix Hermes first. Do not install this pack yet.
 
 ## First hour
 
@@ -27,8 +27,8 @@ Clone anywhere except inside the Hermes home (`~/.hermes` or `%LOCALAPPDATA%\her
 **Windows (PowerShell):**
 
 ```powershell
-git clone https://github.com/klawcode193/hermes-factory.git
-cd hermes-factory
+git clone https://github.com/klawcode193/hermes-specialists.git
+cd hermes-specialists
 powershell -ExecutionPolicy Bypass -File .\install.ps1
 ```
 
@@ -37,8 +37,8 @@ Do not run `./install.sh` in PowerShell. It will no-op.
 **macOS / Linux / Git Bash:**
 
 ```bash
-git clone https://github.com/klawcode193/hermes-factory.git
-cd hermes-factory
+git clone https://github.com/klawcode193/hermes-specialists.git
+cd hermes-specialists
 ./install.sh
 ```
 
@@ -48,7 +48,7 @@ Install also writes `kanban.orchestrator_profile=chief` onto your **default** He
 
 ### 1. One gateway
 
-Stop the default gateway, or leave `dispatch_in_gateway` true on exactly one gateway. Two running gateways means two dispatchers and a dead factory.
+Stop the default gateway, or leave `dispatch_in_gateway` true on exactly one gateway. Two running gateways means two dispatchers and a dead install.
 
 ```text
 hermes -p default gateway stop
@@ -87,14 +87,14 @@ Coder has full coding tools. The only folder in this test is one you just create
 3. One card. Make the folder, then ask chief for a kill/keep on that folder only, done-when: one recommendation.
 
 ```powershell
-mkdir $env:USERPROFILE\factory-test
+mkdir $env:USERPROFILE\specialists-test
 ```
 
 ```bash
-mkdir -p "$HOME/factory-test"
+mkdir -p "$HOME/specialists-test"
 ```
 
-Then: `Kill or keep $HOME/factory-test (or %USERPROFILE%\factory-test). Done when you give one recommendation. Do not touch any other path.` Chief must create the work and not ask you to say "dispatch." Wait about a minute. A specialist-shaped answer comes back.
+Then: `Kill or keep $HOME/specialists-test (or %USERPROFILE%\specialists-test). Done when you give one recommendation. Do not touch any other path.` Chief must create the work and not ask you to say "dispatch." Wait about a minute. A specialist-shaped answer comes back.
 
 Pass: you stayed on chief, chief did not touch disk, nobody asked you to dispatch, a specialist answered.
 
@@ -179,7 +179,7 @@ you → chief (chief chat or Telegram)
 - Default gateway still running + chief gateway = two dispatchers. Stop default.
 - Default Telegram + chief Telegram = token lock. One bot. One chief.
 - A session with no terminal cannot move `.env` files. Use the telegram setup script locally.
-- Nested Grok Build or Cursor inside the factory is two chiefs. Pin a model on the coder profile instead.
+- Nested Grok Build or Cursor inside this pack is two chiefs. Pin a model on the coder profile instead.
 - New profiles often default to OpenRouter with no key. Worker dies in about a minute, no kanban log. Run the models setup script. Do not add a new provider.
 
 Already installed and workers die? Do not `-Force`.

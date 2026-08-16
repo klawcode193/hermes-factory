@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copy the working default model/provider onto factory profiles.
+# Copy the working default model/provider onto specialist profiles.
 # Does not print keys. Does not overwrite an existing per-profile auth.json.
 set -euo pipefail
 
