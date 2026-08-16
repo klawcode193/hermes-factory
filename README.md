@@ -4,8 +4,6 @@ A Chief of Staff plus four specialists for [Hermes Agent](https://hermes-agent.n
 
 You talk to **chief**. Chief runs the factory. You do not open the kanban board.
 
-This is a fleet pack, not a costume in one prompt. Each role is a real Hermes profile with its own `SOUL.md`. Coordination is the shared board. Specialists do not DM each other.
-
 Requires a working Hermes install (v0.19+). This repo ships no API keys, tokens, memories, or session history.
 
 ## Roster
@@ -20,15 +18,9 @@ Requires a working Hermes install (v0.19+). This repo ships no API keys, tokens,
 
 Critic kills plans. Reviewer kills diffs. Do not merge them.
 
-## What this is not
-
-- Not a group chat. Workers cannot see sibling cards.
-- Not `delegate_task(profile="coder")`. Maintainers rejected that. Kanban is the supported path.
-- Not A2A ping-pong on one machine. Official same-machine advice is the board. A2A exists in 0.20 for cross-process/machine work and caps ping-pong at 5 turns.
-
 ## Install
 
-On a machine that already has Hermes working. Clone the repo anywhere except inside `~/.hermes`.
+Clone anywhere except inside the Hermes home (`~/.hermes` or `%LOCALAPPDATA%\hermes`).
 
 **Windows (PowerShell):**
 
@@ -38,6 +30,8 @@ cd hermes-factory
 powershell -ExecutionPolicy Bypass -File .\install.ps1
 ```
 
+Do not run `./install.sh` in PowerShell. It will no-op.
+
 **macOS / Linux / Git Bash:**
 
 ```bash
@@ -46,92 +40,97 @@ cd hermes-factory
 ./install.sh
 ```
 
-The script:
-
-1. Installs the five profiles from `profiles/*` via `hermes profile install`
-2. Writes routing descriptions so the decomposer can assign work
-3. Sets `kanban.orchestrator_profile=chief` on the default config
-4. Runs `hermes kanban init`
-5. Prints the one command you run next
+Reruns are safe. If a profile already exists, the script updates it and **keeps your `config.yaml`** (Telegram chat ids survive). `-Force` / `--force` overwrites shipped files and can replace `config.yaml`. Don't use force on a live chief that already has chat ids.
 
 Then:
 
-```bash
+```powershell
 hermes profile use chief
-hermes gateway start
-chief chat
+hermes -p chief gateway start
 ```
 
-Talk to chief like a normal assistant. Do not run `hermes kanban` yourself. Do not open the dashboard. If you are looking at columns, chief failed.
+New profile = new OS service. If it asks to install the gateway service, Y. On Windows, UAC opens in another window. Approve it, then start again if `hermes -p chief gateway status` is down. The default gateway you already had is a different service.
 
-`./install.sh --force` or `install.ps1 -Force` overwrites existing profiles of the same names. Memories and `.env` stay put (Hermes installer rule).
+Talk to chief. Do not run `hermes kanban` yourself. Do not open the dashboard.
 
-## After install, you still do these yourself
+## Telegram
 
-Hermes already works on the machine, so models and keys already exist. Still:
+The bot you already have is almost certainly the **default** profile. Two profiles cannot share one token.
 
-1. **Start exactly one gateway** and leave it up. The dispatcher lives inside it. Without it, cards sit in `ready` forever. `hermes gateway install` if you want it to survive reboot.
-2. **Talk only to `chief`.** `hermes profile use chief` so plain `hermes chat` hits chief. Or `chief chat`.
-3. **Do not give chief file/terminal tools.** The shipped `config.yaml` already locks chief to `kanban`, `memory`, and `clarify`. If you later run `hermes tools` on chief and turn coding back on, you have one guy in a meeting with himself.
-4. **Worker models.** Cheap models on critic/coder/reviewer/strategist. Frontier on chief. Edit each profile with `coder config set model.default <your-cheap-model>` etc. Do not put keys in this repo.
-5. **Human decisions.** When a worker blocks on money, a repo, or a real fork, chief should ask you in chat, then unblock the card itself. That is being CEO, not running kanban.
-6. **One dispatcher.** If you start a gateway per profile, only one may have `kanban.dispatch_in_gateway: true`. The install sets it on the default config. Leave the others false.
+1. Do not rewire Telegram from inside the Telegram chat. Stopping that gateway kills the chat.
+2. Run locally:
 
-## How a job actually runs
+```powershell
+powershell -ExecutionPolicy Bypass -File .\setup-telegram.ps1
+```
+
+That moves `TELEGRAM_BOT_TOKEN` from default `.env` to chief `.env` without printing it, stops default, starts chief.
+
+3. Message the same bot. `/new`. That should be chief.
+
+If chief says it has no kanban tools, merge this into *existing* `profiles/chief/config.yaml`. Do not replace the file.
+
+```yaml
+toolsets:
+  - kanban
+  - memory
+  - clarify
+
+platform_toolsets:
+  cli:
+    - kanban
+    - memory
+    - clarify
+  telegram:
+    - kanban
+    - memory
+    - clarify
+```
+
+`custom_toolsets.orchestrator` does nothing on Telegram. Name `kanban` on `platform_toolsets.telegram`.
+
+## Binder, not the vault
+
+Chief has no file tools. On purpose. Give chief a one-page `memories/USER.md` and `memories/MEMORY.md` (Hermes caps: 1375 / 2200 chars). Paths yes. File contents no. Let the old default profile distill your context into those two files, then stop using default.
+
+In flight should be a short pay list, not every prototype on disk. Reviewer kills diffs. Chief unblocks humans. Do not merge those jobs.
+
+After editing memory files: `/new` in Telegram. Restart the gateway only if it still sounds old.
+
+## Test (stop at the first fail)
+
+Do not test on a live production site.
+
+1. Identity. `Who are you and what do you not do?` If it loads skills or implements, you are still on default.
+2. Hands. `Open the vault and summarize my dashboard.` Chief must refuse and offer to card a specialist.
+3. One card. A small kill/keep or review with a named path and a done-when. Chief must `kanban_create` and not ask you to say "dispatch." Wait about a minute for the dispatcher tick. A specialist-shaped answer comes back.
+
+Pass: Telegram stays chief, no disk, no "say dispatch," an answer from the specialist.
+
+## Footguns we already hit
+
+- Windows Hermes home is often `%LOCALAPPDATA%\hermes`, not `~\.hermes`.
+- `./install.sh` in PowerShell does nothing. Use `install.ps1`.
+- "Profile already exists" is a rerun. Update in place. Don't force-wipe chat ids.
+- "Gateway service is not installed" on `chief gateway start` means *chief's* service, not that Hermes is missing. Y to install. UAC is another process.
+- Default Telegram + chief Telegram = token lock. One bot. One chief.
+- A session with no terminal cannot move `.env` files. Use `setup-telegram.ps1`.
+- Nested Grok Build or Cursor inside the factory is two chiefs. Pin a model on the coder profile instead.
+
+## How a job runs
 
 ```
-you → chief chat
-        chief kanban_create / auto-decompose
-        dispatcher (gateway, ~60s tick) spawns the assignee profile
-        worker: kanban_show → work → complete | request_review | block
-        chief gets notify+wake
+you → chief (Telegram or chief chat)
+        kanban_create
+        dispatcher (inside chief's gateway, ~60s) spawns the assignee
+        worker completes / request_review / block
+        chief notify+wake
         chief answers you
-```
-
-Shared decisions go in every child card body. Workers cannot see siblings. If two cards must agree on a file format, chief picks it once and stamps both cards.
-
-`delegate_task` is fine *inside* a card for a 2-minute helper. Do not raise `max_spawn_depth` and call it a company. Depth 3 × 3-wide is 27 agents.
-
-## Updating
-
-```bash
-cd hermes-factory && git pull
-./install.sh --force
-# or, per profile:
-hermes profile update chief
-hermes profile update critic
-hermes profile update coder
-hermes profile update reviewer
-hermes profile update strategist
-```
-
-Updates replace SOUL and shipped config. Your `.env`, memories, and sessions stay.
-
-## Repo layout
-
-```
-profiles/chief|critic|coder|reviewer|strategist/
-  distribution.yaml    # hermes profile install manifest
-  SOUL.md              # identity
-  config.yaml          # tool defaults, no secrets
-install.sh             # fleet installer
-```
-
-Each profile is a valid Hermes distribution. You can install one:
-
-```bash
-hermes profile install ./profiles/coder --alias
 ```
 
 ## Security
 
-Public on purpose. Nothing secret belongs here.
-
-Never commit: `.env`, `auth.json`, API keys, bot tokens, `memories/`, `sessions/`, `state.db`, logs, private repo URLs, machine paths, personal emails.
-
-The Hermes installer also strips those paths even if someone screws up. That protects installers, not the git history. `.gitignore` is the author-side lock.
-
-If you fork this and add keys, make that fork private before the first commit.
+Public on purpose. Never commit `.env`, tokens, memories, chat ids, vault paths, or emails.
 
 ## License
 

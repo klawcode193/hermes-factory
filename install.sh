@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Install the hermes-factory roster onto an existing Hermes install.
-# No secrets. Does not start the gateway. Does not open the board.
+# No secrets. Does not start the gateway.
+# Idempotent: existing profiles are updated in place (config.yaml kept).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
@@ -13,8 +14,13 @@ die() { echo "error: $*" >&2; exit 1; }
 
 command -v hermes >/dev/null 2>&1 || die "hermes is not on PATH. Install Hermes first, then rerun."
 
-HERMES_HOME="${HERMES_HOME:-$HOME/.hermes}"
-[[ -d "$HERMES_HOME" ]] || die "no Hermes home at $HERMES_HOME. This pack assumes Hermes is already set up."
+if [[ -n "${HERMES_HOME:-}" && -d "$HERMES_HOME" ]]; then
+  :
+elif [[ -d "${HOME}/.hermes" ]]; then
+  HERMES_HOME="${HOME}/.hermes"
+else
+  die "no Hermes home at ~/.hermes. This pack assumes Hermes is already set up."
+fi
 
 PROFILES=(chief critic strategist coder reviewer)
 
@@ -36,7 +42,11 @@ for name in "${PROFILES[@]}"; do
   fi
   echo "→ hermes ${args[*]}"
   if ! hermes "${args[@]}"; then
-    die "install failed for $name (rerun with --force to replace an existing profile)"
+    if [[ "$FORCE" == 1 ]]; then
+      die "install failed for $name even with --force"
+    fi
+    echo "   profile $name exists. Updating in place (keeps your config.yaml)."
+    hermes profile update "$name" || die "update failed for $name"
   fi
 done
 
@@ -62,14 +72,8 @@ hermes kanban init || true
 echo
 echo "done."
 echo
-echo "Next (you, once):"
+echo "Next:"
 echo "  hermes profile use chief"
-echo "  hermes gateway start"
-echo "  chief chat"
-echo
-echo "Talk to chief. Do not open the board."
-echo "Pin a cheap model on workers if chief is on a frontier model:"
-echo "  coder config set model.default <cheap-model>"
-echo "  critic config set model.default <cheap-model>"
-echo "  reviewer config set model.default <cheap-model>"
-echo "  strategist config set model.default <cheap-model>"
+echo "  hermes -p chief gateway start"
+echo "  Talk only to chief. Do not open the board."
+echo "  Telegram: move TELEGRAM_BOT_TOKEN onto chief .env, stop default gateway."

@@ -1,5 +1,6 @@
 # Install the hermes-factory roster onto an existing Hermes install.
 # Windows PowerShell. No secrets. Does not start the gateway.
+# Idempotent: existing profiles are updated in place (config.yaml kept).
 param(
     [switch]$Force
 )
@@ -16,9 +17,20 @@ if (-not (Get-Command hermes -ErrorAction SilentlyContinue)) {
     Die "hermes is not on PATH. Install Hermes first, then rerun."
 }
 
-$HermesHome = if ($env:HERMES_HOME) { $env:HERMES_HOME } else { Join-Path $HOME ".hermes" }
-if (-not (Test-Path $HermesHome)) {
-    Die "no Hermes home at $HermesHome. This pack assumes Hermes is already set up."
+function Resolve-HermesHome {
+    if ($env:HERMES_HOME -and (Test-Path $env:HERMES_HOME)) { return $env:HERMES_HOME }
+    $candidates = @()
+    if ($env:LOCALAPPDATA) { $candidates += (Join-Path $env:LOCALAPPDATA "hermes") }
+    $candidates += (Join-Path $HOME ".hermes")
+    foreach ($c in $candidates) {
+        if (Test-Path $c) { return $c }
+    }
+    return $null
+}
+
+$HermesHome = Resolve-HermesHome
+if (-not $HermesHome) {
+    Die "no Hermes home found. Checked %LOCALAPPDATA%\hermes and ~/.hermes. This pack assumes Hermes is already set up."
 }
 
 $Profiles = @("chief", "critic", "strategist", "coder", "reviewer")
@@ -38,12 +50,17 @@ foreach ($name in $Profiles) {
     if (-not (Test-Path (Join-Path $src "distribution.yaml"))) {
         Die "missing $src\distribution.yaml"
     }
-    $args = @("profile", "install", $src, "--name", $name, "--alias", "-y")
-    if ($Force) { $args += "--force" }
-    Write-Host "-> hermes $($args -join ' ')"
-    & hermes @args
+    $installArgs = @("profile", "install", $src, "--name", $name, "--alias", "-y")
+    if ($Force) { $installArgs += "--force" }
+    Write-Host "-> hermes $($installArgs -join ' ')"
+    & hermes @installArgs
     if ($LASTEXITCODE -ne 0) {
-        Die "install failed for $name (rerun with -Force to replace an existing profile)"
+        if ($Force) { Die "install failed for $name even with -Force" }
+        Write-Host "   profile $name exists. Updating in place (keeps your config.yaml / chat ids)."
+        & hermes profile update $name
+        if ($LASTEXITCODE -ne 0) {
+            Die "update failed for $name. If you really want a clean overwrite: .\install.ps1 -Force (this can replace config.yaml)"
+        }
     }
 }
 
@@ -67,9 +84,13 @@ Write-Host "-> hermes kanban init"
 Write-Host ""
 Write-Host "done."
 Write-Host ""
-Write-Host "Next (you, once):"
-Write-Host "  hermes profile use chief"
-Write-Host "  hermes gateway start"
-Write-Host "  chief chat"
+Write-Host "Next:"
+Write-Host "  1. hermes profile use chief"
+Write-Host "  2. hermes -p chief gateway start"
+Write-Host "     New profile = new Windows service. If it asks to install, Y."
+Write-Host "     UAC opens in another window. Approve it, then start again if status is down."
+Write-Host "  3. Talk only to chief. Telegram users: run .\setup-telegram.ps1 so the bot token is on chief, not default."
+Write-Host "  4. Do not open the board."
 Write-Host ""
-Write-Host "Talk to chief. Do not open the board."
+Write-Host "If Telegram chief says it has no kanban tools: add kanban to platform_toolsets.telegram"
+Write-Host "in chief config.yaml. Merge. Do not replace a file that has chat ids."

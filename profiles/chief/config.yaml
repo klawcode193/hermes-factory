@@ -1,11 +1,19 @@
 # Chief of Staff — orchestrator only. No secrets.
-# Locked to board + memory + questions. Implementation tools stay off.
+# Telegram uses platform_toolsets. List kanban by name or the gateway
+# session has no hands. Do not replace a live chief config that already
+# has telegram chat ids — merge these keys into it.
 
 toolsets:
-  - orchestrator
+  - kanban
+  - memory
+  - clarify
 
-custom_toolsets:
-  orchestrator:
+platform_toolsets:
+  cli:
+    - kanban
+    - memory
+    - clarify
+  telegram:
     - kanban
     - memory
     - clarify
