@@ -1,0 +1,25 @@
+# Strategist — decisions, not implementation. No secrets.
+
+toolsets:
+  - strategist
+
+custom_toolsets:
+  strategist:
+    - kanban
+    - memory
+    - clarify
+    - web
+    - search
+    - file
+    - session_search
+
+agent:
+  disabled_toolsets:
+    - terminal
+    - coding
+    - code_execution
+    - computer_use
+    - cronjob
+
+memory:
+  memory_enabled: true

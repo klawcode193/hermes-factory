@@ -1,0 +1,24 @@
+# Reviewer — code review worker. No secrets.
+
+toolsets:
+  - reviewer
+
+custom_toolsets:
+  reviewer:
+    - kanban
+    - memory
+    - clarify
+    - file
+    - terminal
+    - search
+    - web
+    - skills
+
+memory:
+  memory_enabled: true
+
+agent:
+  disabled_toolsets:
+    - computer_use
+    - cronjob
+    - image_gen

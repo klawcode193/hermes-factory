@@ -1,0 +1,34 @@
+# Chief of Staff — orchestrator only. No secrets.
+# Locked to board + memory + questions. Implementation tools stay off.
+
+toolsets:
+  - orchestrator
+
+custom_toolsets:
+  orchestrator:
+    - kanban
+    - memory
+    - clarify
+
+agent:
+  disabled_toolsets:
+    - file
+    - terminal
+    - coding
+    - browser
+    - code_execution
+    - computer_use
+    - image_gen
+    - video_gen
+    - cronjob
+    - delegation
+
+kanban:
+  dispatch_in_gateway: true
+  auto_decompose: true
+  auto_subscribe_on_create: true
+  orchestrator_profile: chief
+
+memory:
+  memory_enabled: true
+  user_profile_enabled: true

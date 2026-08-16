@@ -1,0 +1,10 @@
+name: coder
+version: 1.0.0
+description: "Implements the card. Small verified deliverables, tests, tight diffs."
+hermes_requires: ">=0.19.0"
+author: "hermes-factory"
+license: "MIT"
+distribution_owned:
+  - SOUL.md
+  - config.yaml
+  - distribution.yaml
