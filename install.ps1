@@ -81,6 +81,29 @@ Write-Host ""
 Write-Host "-> hermes kanban init"
 & hermes kanban init
 
+
+Write-Host ""
+Write-Host "-> pinning workers to the model that already works on default"
+$provider = (& hermes -p default config get model.provider 2>$null | Out-String).Trim()
+$model = (& hermes -p default config get model.default 2>$null | Out-String).Trim()
+if (-not $provider) { $provider = (& hermes config get model.provider 2>$null | Out-String).Trim() }
+if (-not $model) { $model = (& hermes config get model.default 2>$null | Out-String).Trim() }
+if ($provider -or $model) {
+    Write-Host "   source: provider=$provider model=$model"
+    foreach ($name in $Profiles) {
+        if ($provider) { & hermes -p $name config set model.provider $provider }
+        if ($model) { & hermes -p $name config set model.default $model }
+        $srcAuth = Join-Path $HermesHome "auth.json"
+        $dstAuth = Join-Path $HermesHome "profiles\$name\auth.json"
+        if ((Test-Path $srcAuth) -and -not (Test-Path $dstAuth)) {
+            Copy-Item $srcAuth $dstAuth
+            Write-Host "   copied auth.json to $name (not printed)"
+        }
+    }
+} else {
+    Write-Host "   could not read default model. Run .\\setup-models.ps1 after you know which provider works."
+}
+
 Write-Host ""
 Write-Host "done."
 Write-Host ""

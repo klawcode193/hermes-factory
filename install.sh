@@ -69,6 +69,29 @@ echo
 echo "→ hermes kanban init"
 hermes kanban init || true
 
+
+echo
+echo "→ pinning workers to the model that already works on default"
+provider="$(hermes -p default config get model.provider 2>/dev/null || true)"
+model="$(hermes -p default config get model.default 2>/dev/null || true)"
+if [[ -z "$provider" ]]; then provider="$(hermes config get model.provider 2>/dev/null || true)"; fi
+if [[ -z "$model" ]]; then model="$(hermes config get model.default 2>/dev/null || true)"; fi
+if [[ -n "$provider" || -n "$model" ]]; then
+  echo "   source: provider=$provider model=$model"
+  for name in "${PROFILES[@]}"; do
+    [[ -n "$provider" ]] && hermes -p "$name" config set model.provider "$provider" || true
+    [[ -n "$model" ]] && hermes -p "$name" config set model.default "$model" || true
+    src_auth="$HERMES_HOME/auth.json"
+    dst_auth="$HERMES_HOME/profiles/$name/auth.json"
+    if [[ -f "$src_auth" && ! -f "$dst_auth" ]]; then
+      cp "$src_auth" "$dst_auth"
+      echo "   copied auth.json to $name (not printed)"
+    fi
+  done
+else
+  echo "   could not read default model. Set each profile with hermes -p <name> model"
+fi
+
 echo
 echo "done."
 echo

@@ -53,6 +53,15 @@ New profile = new OS service. If it asks to install the gateway service, Y. On W
 
 Talk to chief. Do not run `hermes kanban` yourself. Do not open the dashboard.
 
+Install also copies the **default** profile's model + provider onto the five factory profiles, and copies `auth.json` only when a profile does not already have one. That stops workers from booting on OpenRouter with no key and dying (`pid gone`, no log).
+
+Already installed? Do not `-Force`. Run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\setup-models.ps1
+hermes -p strategist chat -q "Reply with the word alive. Do not load skills."
+```
+
 ## Telegram
 
 The bot you already have is almost certainly the **default** profile. Two profiles cannot share one token.
@@ -116,6 +125,7 @@ Pass: Telegram stays chief, no disk, no "say dispatch," an answer from the speci
 - Default Telegram + chief Telegram = token lock. One bot. One chief.
 - A session with no terminal cannot move `.env` files. Use `setup-telegram.ps1`.
 - Nested Grok Build or Cursor inside the factory is two chiefs. Pin a model on the coder profile instead.
+- New profiles often default to OpenRouter with no key. Worker `pid gone` in ~60s, no kanban log. Run `setup-models.ps1`. Do not add a new provider to "fix" it.
 
 ## How a job runs
 
