@@ -40,13 +40,13 @@ cd hermes-factory
 ./install.sh
 ```
 
-Reruns update existing profiles and keep your `config.yaml`. Do not pass `-Force` / `--force` unless you intend to replace shipped files. That can wipe a live chief.
+Reruns update existing profiles and keep your `config.yaml`.
 
 Install also writes `kanban.orchestrator_profile=chief` onto your **default** Hermes config. That is required for the dispatcher. A bare `hermes` command still uses whichever profile `hermes profile use` last set.
 
 ### 1. One gateway
 
-If the default gateway is running, stop it. Two gateways means two dispatchers and a dead factory.
+Stop the default gateway, or leave `dispatch_in_gateway` true on exactly one gateway. Two running gateways means two dispatchers and a dead factory.
 
 ```text
 hermes -p default gateway stop
@@ -78,11 +78,21 @@ Or message the Telegram bot after you move it. Talk only to chief. Do not run `h
 
 ## Test (stop at the first fail)
 
-Do not point this at a repo, site, or folder you care about. Coder has full coding tools.
+Coder has full coding tools. The only folder in this test is one you just created.
 
 1. Identity. `Who are you and what do you not do?` If it loads skills or implements, you are still on default.
 2. Hands. `Read a file in my home folder and summarize it.` Chief must refuse and offer to assign a specialist.
-3. One card. Create a throwaway folder (`$HOME/factory-test` or `%USERPROFILE%\factory-test`). Ask chief for a kill/keep on that folder only, with a done-when. Chief must create the work and not ask you to say "dispatch." Wait about a minute. A specialist-shaped answer comes back.
+3. One card. Make the folder, then ask chief for a kill/keep on that folder only, done-when: one recommendation.
+
+```powershell
+mkdir $env:USERPROFILE\factory-test
+```
+
+```bash
+mkdir -p "$HOME/factory-test"
+```
+
+Then: `Kill or keep $HOME/factory-test (or %USERPROFILE%\factory-test). Done when you give one recommendation. Do not touch any other path.` Chief must create the work and not ask you to say "dispatch." Wait about a minute. A specialist-shaped answer comes back.
 
 Pass: you stayed on chief, chief did not touch disk, nobody asked you to dispatch, a specialist answered.
 
