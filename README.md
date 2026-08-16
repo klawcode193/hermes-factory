@@ -28,7 +28,17 @@ Critic kills plans. Reviewer kills diffs. Do not merge them.
 
 ## Install
 
-On a machine that already has Hermes working:
+On a machine that already has Hermes working. Clone the repo anywhere except inside `~/.hermes`.
+
+**Windows (PowerShell):**
+
+```powershell
+git clone https://github.com/klawcode193/hermes-factory.git
+cd hermes-factory
+powershell -ExecutionPolicy Bypass -File .\install.ps1
+```
+
+**macOS / Linux / Git Bash:**
 
 ```bash
 git clone https://github.com/klawcode193/hermes-factory.git
@@ -54,7 +64,7 @@ chief chat
 
 Talk to chief like a normal assistant. Do not run `hermes kanban` yourself. Do not open the dashboard. If you are looking at columns, chief failed.
 
-`./install.sh --force` overwrites existing profiles of the same names. Memories and `.env` stay put (Hermes installer rule).
+`./install.sh --force` or `install.ps1 -Force` overwrites existing profiles of the same names. Memories and `.env` stay put (Hermes installer rule).
 
 ## After install, you still do these yourself
 
