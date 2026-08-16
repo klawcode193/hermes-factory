@@ -6,6 +6,8 @@ You talk to **chief**. Chief runs the factory. You do not open the kanban board.
 
 This repo ships no API keys, tokens, memories, or session history.
 
+Walkthrough: [SETUP.md](SETUP.md) · [SETUP.pdf](SETUP.pdf)
+
 ## Prerequisite
 
 1. `hermes` is on PATH.
@@ -13,7 +15,7 @@ This repo ships no API keys, tokens, memories, or session history.
 3. The **default** profile can finish one chat:
 
 ```text
-hermes chat -q "Reply with the word alive."
+hermes -p default chat -q "Reply with the word alive."
 ```
 
 The installer copies that working model and provider onto the factory profiles. If default cannot chat, workers boot on OpenRouter with no key and die. Fix Hermes first. Do not install this pack yet.
