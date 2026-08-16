@@ -14,6 +14,17 @@ die() { echo "error: $*" >&2; exit 1; }
 
 command -v hermes >/dev/null 2>&1 || die "hermes is not on PATH. Install Hermes first, then rerun."
 
+ver="$(hermes --version 2>/dev/null | head -1 || true)"
+echo "hermes: ${ver:-unknown}"
+num="$(printf '%s\n' "$ver" | grep -oE '[0-9]+\.[0-9]+' | head -1 || true)"
+if [[ -n "$num" ]]; then
+  major="${num%%.*}"
+  minor="${num#*.}"
+  if (( major == 0 && minor < 19 )); then
+    die "need Hermes >= 0.19, got $ver"
+  fi
+fi
+
 if [[ -n "${HERMES_HOME:-}" && -d "$HERMES_HOME" ]]; then
   :
 elif [[ -d "${HOME}/.hermes" ]]; then
@@ -67,7 +78,7 @@ hermes config set kanban.auto_subscribe_on_create true
 
 echo
 echo "→ hermes kanban init"
-hermes kanban init || true
+hermes kanban init
 
 
 echo
@@ -96,7 +107,9 @@ echo
 echo "done."
 echo
 echo "Next:"
-echo "  hermes profile use chief"
-echo "  hermes -p chief gateway start"
-echo "  Talk only to chief. Do not open the board."
-echo "  Telegram: move TELEGRAM_BOT_TOKEN onto chief .env, stop default gateway."
+echo "  1. Stop the default gateway if it is running. One dispatcher."
+echo "  2. hermes profile use chief   (this changes your current profile)"
+echo "  3. hermes -p chief gateway start"
+echo "  4. hermes -p strategist chat -q \"Reply with the word alive. Do not load skills.\""
+echo "  5. Talk only to chief. Do not open the board."
+echo "  Telegram: ./setup-telegram.sh"

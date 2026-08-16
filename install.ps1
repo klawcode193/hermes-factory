@@ -17,6 +17,17 @@ if (-not (Get-Command hermes -ErrorAction SilentlyContinue)) {
     Die "hermes is not on PATH. Install Hermes first, then rerun."
 }
 
+$ver = (& hermes --version 2>$null | Out-String).Trim()
+Write-Host "hermes: $(if ($ver) { $ver } else { 'unknown' })"
+$m = [regex]::Match($ver, '(\d+)\.(\d+)')
+if ($m.Success) {
+    $major = [int]$m.Groups[1].Value
+    $minor = [int]$m.Groups[2].Value
+    if ($major -eq 0 -and $minor -lt 19) {
+        Die "need Hermes >= 0.19, got $ver"
+    }
+}
+
 function Resolve-HermesHome {
     if ($env:HERMES_HOME -and (Test-Path $env:HERMES_HOME)) { return $env:HERMES_HOME }
     $candidates = @()
@@ -80,6 +91,7 @@ Write-Host "-> pointing the default config at chief as orchestrator"
 Write-Host ""
 Write-Host "-> hermes kanban init"
 & hermes kanban init
+if ($LASTEXITCODE -ne 0) { Die "hermes kanban init failed (exit $LASTEXITCODE). Fix the board, then rerun. Do not continue." }
 
 
 Write-Host ""
@@ -108,12 +120,14 @@ Write-Host ""
 Write-Host "done."
 Write-Host ""
 Write-Host "Next:"
-Write-Host "  1. hermes profile use chief"
-Write-Host "  2. hermes -p chief gateway start"
+Write-Host "  1. Stop the default gateway if it is running. One dispatcher."
+Write-Host "  2. hermes profile use chief   (this changes your current profile)"
+Write-Host "  3. hermes -p chief gateway start"
 Write-Host "     New profile = new Windows service. If it asks to install, Y."
 Write-Host "     UAC opens in another window. Approve it, then start again if status is down."
-Write-Host "  3. Talk only to chief. Telegram users: run .\setup-telegram.ps1 so the bot token is on chief, not default."
-Write-Host "  4. Do not open the board."
+Write-Host "  4. hermes -p strategist chat -q \"Reply with the word alive. Do not load skills.\""
+Write-Host "  5. Talk only to chief. Telegram: .\setup-telegram.ps1"
+Write-Host "  6. Do not open the board."
 Write-Host ""
 Write-Host "If Telegram chief says it has no kanban tools: add kanban to platform_toolsets.telegram"
 Write-Host "in chief config.yaml. Merge. Do not replace a file that has chat ids."

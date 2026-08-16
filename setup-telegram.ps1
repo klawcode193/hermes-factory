@@ -20,21 +20,26 @@ if (-not (Test-Path $chiefDir)) { throw "chief profile missing at $chiefDir. Run
 
 Write-Host "hermes home: $home"
 & hermes profile list
-& hermes -p default gateway stop
 
-if (-not (Test-Path $defaultEnv)) { throw "no default .env at $defaultEnv" }
-$line = Get-Content $defaultEnv | Where-Object { $_ -match '^\s*TELEGRAM_BOT_TOKEN=' }
-if (-not $line) {
-    $already = Test-Path $chiefEnv -and ((Get-Content $chiefEnv | Where-Object { $_ -match '^\s*TELEGRAM_BOT_TOKEN=' }))
-    if ($already) { Write-Host "token already on chief"; }
-    else { throw "no TELEGRAM_BOT_TOKEN in default .env" }
+$defaultLine = $null
+if (Test-Path $defaultEnv) {
+    $defaultLine = Get-Content $defaultEnv | Where-Object { $_ -match '^\s*TELEGRAM_BOT_TOKEN=' }
+}
+$chiefHas = (Test-Path $chiefEnv) -and ((Get-Content $chiefEnv | Where-Object { $_ -match '^\s*TELEGRAM_BOT_TOKEN=' }))
+
+if (-not $defaultLine -and $chiefHas) {
+    Write-Host "token already on chief only. Leaving default gateway alone."
+} elseif (-not $defaultLine -and -not $chiefHas) {
+    throw "no TELEGRAM_BOT_TOKEN in default .env or chief .env"
 } else {
+    Write-Host "stopping default gateway (it still holds the token)"
+    & hermes -p default gateway stop
     if (-not (Test-Path $chiefEnv)) { New-Item -ItemType File -Path $chiefEnv | Out-Null }
     $chief = @(Get-Content $chiefEnv | Where-Object { $_ -notmatch '^\s*TELEGRAM_BOT_TOKEN=' })
-    $chief += $line
+    $chief += $defaultLine
     Set-Content $chiefEnv $chief
     Set-Content $defaultEnv (Get-Content $defaultEnv | Where-Object { $_ -notmatch '^\s*TELEGRAM_BOT_TOKEN=' })
-    Write-Host "token moved"
+    Write-Host "token moved (value not printed)"
 }
 
 & hermes -p chief gateway start
